@@ -25,5 +25,11 @@ app.use("/api/auth", authRouter)
 app.use("/api/accounts", accountRouter)
 app.use("/api/transactions", transactionRouter)
 
+/**
+ * - Error Middleware
+ */
+const {errorMiddleware} = require("./middleware/error.middleware.js")
+
+app.use(errorMiddleware)
 
 module.exports = app

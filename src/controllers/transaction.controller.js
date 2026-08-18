@@ -10,9 +10,6 @@ const mongoose = require("mongoose")
 
 const createTransaction = asyncHandler(async function (req, res) {
     const { fromAccount, toAccount, amount, idempotencyKey } = req.body
-    if (!fromAccount || !toAccount || !amount || !idempotencyKey) {
-        throw new ApiError(400, "fromAccount,toAccount,amount,idempotencyKey are required")
-    }
 
     const fromUserAccount = await accountModel.findOne({
         _id: fromAccount
