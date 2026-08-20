@@ -2,8 +2,19 @@ const {ApiError} = require('../utils/api-error')
 
 
 const errorMiddleware = (err, req, res, next) =>{
-    if(err instanceof ApiError){
-        res
+    
+    if(err.type === 'entity.parse.failed'){
+        return res
+         .status(err.statusCode)
+         .json({
+            success:false,
+            message:"Invalid json in request body",
+            data:null,
+            errors:[]
+         })
+    }
+    else if(err instanceof ApiError){
+        return res
          .status(err.statusCode)
          .json({
             success:err.success,
@@ -13,7 +24,7 @@ const errorMiddleware = (err, req, res, next) =>{
          })
     }else{
         console.error(err)
-        res
+        return res
          .status(500)
          .json({
             success:false,
