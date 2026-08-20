@@ -29,10 +29,10 @@ const createTransaction = asyncHandler(async function (req, res) {
 
     if (isTransactionAlreadyExists) {
         if (isTransactionAlreadyExists.status === "COMPLETE") {
-            return res.status(200).json(new ApiResponse(
-                200,
-                isTransactionAlreadyExists,
-                "Transaction already processed"
+            return res.status(500).json(new ApiResponse(
+                500,
+                {},
+                "Same transcation can not be done again with same ideompotant key"
             ))
         }
 
@@ -120,9 +120,6 @@ const createTransaction = asyncHandler(async function (req, res) {
 const createInitialFundsTransaction = asyncHandler(async function (req,res) {
     const {toAccount, amount, idempotencyKey} = req.body
 
-    if(!toAccount || !amount || !idempotencyKey){
-        throw new ApiError(400,"toAccount,amount,idempotencyKey are required")
-    }
 
     const toUserAccount = await accountModel.findOne({
         _id: toAccount,

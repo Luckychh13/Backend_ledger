@@ -21,5 +21,9 @@ const initialFundsSchema = z.object({
     idempotencyKey:z.string().min(10)
 })
 
+const accountIdParamSchema = z.object({
+    accountId: z.string().regex(/^[0-9a-fA-F]{24}$/, { message: "Invalid ObjectId format" })
+})
 
-module.exports = {initialFundsSchema, createTranscationSchema}
+
+module.exports = {initialFundsSchema, createTranscationSchema, accountIdParamSchema}
