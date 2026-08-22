@@ -14,13 +14,19 @@ const createTransaction = asyncHandler(async function (req, res) {
     const fromUserAccount = await accountModel.findOne({
         _id: fromAccount
     })
+    if (!fromUserAccount) {
+        throw new ApiError(400, "Invalid fromAccount ")
+    }
 
+    if(!(req.user._id).equals(fromUserAccount.user)){
+        throw new ApiError(403,"You are not the account holder for this transaction")
+    }else{
     const toUserAccount = await accountModel.findOne({
         _id: toAccount,
     })
 
-    if (!fromUserAccount || !toUserAccount) {
-        throw new ApiError(400, "Invalid fromAccount or ToAccount")
+    if (!toUserAccount) {
+        throw new ApiError(400, "Invalid  ToAccount")
     }
 
     const isTransactionAlreadyExists = await transactionModel.findOne({
@@ -64,8 +70,9 @@ const createTransaction = asyncHandler(async function (req, res) {
     }
 
     let transaction
+    let session
     try {
-        const session = await mongoose.startSession()
+        session = await mongoose.startSession()
         session.startTransaction()
     
         transaction = (await transactionModel.create([{
@@ -82,7 +89,7 @@ const createTransaction = asyncHandler(async function (req, res) {
             transaction:transaction._id,
             type:"DEBIT"
         }],{session})
-    
+   
         await new Promise((resolve) => setTimeout(resolve, 15 * 1000));
 
     
@@ -102,6 +109,10 @@ const createTransaction = asyncHandler(async function (req, res) {
         await session.commitTransaction()
         session.endSession()
     } catch (error) {
+        if(session){
+          await session.abortTransaction()
+          session.endSession()
+        }
         throw new ApiError(400,"Transaction is pending due to some issue, please retry after sometime")
     }
 
@@ -114,7 +125,7 @@ const createTransaction = asyncHandler(async function (req, res) {
         transaction,
         "Transaction processed successfully"
     ))
-
+}
 })
 
 const createInitialFundsTransaction = asyncHandler(async function (req,res) {
@@ -137,36 +148,47 @@ const createInitialFundsTransaction = asyncHandler(async function (req,res) {
         throw new ApiError(400,"System user account not found")
     }
 
-    const session = await mongoose.startSession()
-    session.startTransaction()
-
-    const transaction = new transactionModel({
-        fromAccount:fromUserAccount._id,
-        toAccount,
-        amount,
-        idempotencyKey,
-        status:"PENDING"
-    })
-
-    const debitLedgerEntry = await ledgerModel.create([{
-        account:fromUserAccount._id,
-        amount:amount,
-        transaction:transaction._id,
-        type:"DEBIT"
-    }],{session})
-
-    const creditLedgerEntry = await ledgerModel.create([{
-        account:toAccount,
-        amount:amount,
-        transaction:transaction._id,
-        type:"CREDIT"
-    }],{session})
-
-    transaction.status = "COMPLETE"
-    await transaction.save({session})
-
-    await session.commitTransaction()
-    session.endSession()
+    let transaction
+    let session
+    try {
+        
+        session = await mongoose.startSession()
+        session.startTransaction()
+    
+        transaction = new transactionModel({
+            fromAccount:fromUserAccount._id,
+            toAccount,
+            amount,
+            idempotencyKey,
+            status:"PENDING"
+        })
+    
+        const debitLedgerEntry = await ledgerModel.create([{
+            account:fromUserAccount._id,
+            amount:amount,
+            transaction:transaction._id,
+            type:"DEBIT"
+        }],{session})
+    
+        const creditLedgerEntry = await ledgerModel.create([{
+            account:toAccount,
+            amount:amount,
+            transaction:transaction._id,
+            type:"CREDIT"
+        }],{session})
+    
+        transaction.status = "COMPLETE"
+        await transaction.save({session})
+    
+        await session.commitTransaction()
+        session.endSession()
+    } catch (error) {
+        if(session){
+            await session.abortTransaction()
+            session.endSession()
+        }
+        throw new ApiError(400,"Transaction is pending due to some issue, please retry after sometime")
+    }
 
     await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toAccount)
 

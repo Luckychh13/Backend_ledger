@@ -2,7 +2,7 @@ const express = require("express")
 const authMiddleware = require("../middleware/auth.middleware")
 const accountController = require("../controllers/account.controller")
 const { validate } = require("../middleware/validate.middleware")
-const { accountIdParamSchema } = require("../validators/transcation.validators")
+const { accountIdParamSchema } = require("../validators/transacation.validators")
 
 const router = express.Router()
 
