@@ -28,13 +28,17 @@ async function call() {
             }
     } catch (error) {
         console.error("Connection Error:",error);
+        process.exitCode = 1;
         
     }finally{
-        mongoose.disconnect()
+        await mongoose.disconnect()
     }
 }
 
-call()
+call().catch((error) => {
+    console.error("Seed script Error:", error);
+    process.exitCode = 1;
+})
 
 
 
