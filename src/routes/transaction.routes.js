@@ -2,7 +2,7 @@ const {Router} = require("express")
 const authMiddleware = require("../middleware/auth.middleware")
 const transactionController = require("../controllers/transaction.controller.js")
 const {validate} = require ('../middleware/validate.middleware.js')
-const {initialFundsSchema, createTranscationSchema} = require('../validators/transcation.validators.js')
+const {initialFundsSchema, createTranscationSchema} = require('../validators/transacation.validators.js')
 const transactionRoutes = Router();
 
 

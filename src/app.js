@@ -26,6 +26,12 @@ app.use("/api/accounts", accountRouter)
 app.use("/api/transactions", transactionRouter)
 
 /**
+ * - 404 Route Error
+ */
+
+const {Error404} = require('./middleware/404.middleware.js')
+app.use(Error404)
+/**
  * - Error Middleware
  */
 const {errorMiddleware} = require("./middleware/error.middleware.js")
