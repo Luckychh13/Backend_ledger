@@ -107,19 +107,25 @@ MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/ledger-db
 JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRY=7d
 
-# Email Configuration (using Gmail as example)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password_here
+Email Configuration (Gmail via OAuth2)
 
-# Server Configuration
+EMAIL_USER=your_email@gmail.com
+CLIENT_ID=your_google_oauth_client_id
+CLIENT_SECRET=your_google_oauth_client_secret
+REFRESH_TOKEN=your_google_oauth_refresh_token
+
+Server Configuration
+
 PORT=3000
 NODE_ENV=development
 ```
+ 
+**Note:** This project authenticates with Gmail using OAuth2, not a password/App Password. To get `CLIENT_ID`, `CLIENT_SECRET`, and `REFRESH_TOKEN`:
+1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable the Gmail API, and set up an OAuth 2.0 Client ID under **APIs & Services → Credentials**
+3. Use [Google's OAuth2 Playground](https://developers.google.com/oauthplayground) (or a similar script) with your client credentials to generate a refresh token for the Gmail account you want to send from
 
-**Note:** For Gmail, use an [App Password](https://myaccount.google.com/apppasswords) instead of your regular password.
-
+**⚠️ Known issue:** If your OAuth consent screen is in **Testing** status (Google Cloud Console → APIs & Services → OAuth consent screen), refresh tokens expire after **7 days**, and email sending will fail with `invalid_grant`. Either regenerate the refresh token periodically, or publish the app to remove the 7-day cap.
 ## Configuration
 
 ### Database Configuration (`src/config/db.js`)
@@ -133,7 +139,7 @@ connectToDB()
 ```
 
 ### Email Configuration (`src/services/email.service.js`)
-Configure your email service provider credentials in the `.env` file for sending notifications.
+Email is sent via Gmail using OAuth2 (not username/password auth). See the `.env` setup above for the required `CLIENT_ID`/`CLIENT_SECRET`/`REFRESH_TOKEN` values and how to generate them.
 
 ## Running the Project
 
