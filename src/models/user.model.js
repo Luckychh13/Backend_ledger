@@ -25,6 +25,26 @@ const userSchema = new mongoose.Schema({
         default:false,
         immutable:true,
         select:false
+    },
+    resetToken:{
+        type:String,
+        select:false,
+    },
+    resetTokenExpiry:{
+        type:Date,
+        select:false
+    },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    verifiedCode:{
+        type:String,
+        select:false
+    },
+    verifiedCodeExpiry:{
+        type:Date,
+        select:false
     }
 },{
     timestamps:true
@@ -46,6 +66,14 @@ userSchema.methods.comparePassword=async function(password){
     
     return await bcrypt.compare(password,this.password)
   
+}
+
+userSchema.methods.compareResetToken = async function(resetToken){
+    return await bcrypt.compare(resetToken,this.resetToken)
+}
+
+userSchema.methods.compareVerificationCode = async function (verifiedCode) {
+    return await bcrypt .compare(verifiedCode, this.verifiedCode)
 }
 
 const userModel = mongoose.model("user",userSchema)

@@ -46,18 +46,20 @@ const sendEmail = async (to, subject, text, html) => {
 };
 
 
-async function sendRegistrationEmail(userEmail,name){
+async function sendRegistrationEmail(userEmail,name,code){
     const subject = "Welcome to Backend Ledger"
-
-    const text = `Hello ${name},\n\nThank you for registering with Backend Ledger. 
-    We're excited to have you on board!\n\nBest regards,\nThe Backend Ledger Team`;
-
+ 
+    const text = `Hello ${name},\n\nThank you for registering with Backend Ledger.
+    We're excited to have you on board!\n\nYour verification code is: ${code}
+    \nThis code expires in 15 minutes.\n\nBest regards,\nThe Backend Ledger Team`;
+ 
     const html = `<p>Hello ${name},</p><p>Thank you for registering with Backend Ledger.
-    We're excited to have you on board!</p><p>Best regards,<br>The Backend Ledger Team</p>`;
-
+    We're excited to have you on board!</p><p>Your verification code is: <b>${code}</b></p>
+    <p>This code expires in 15 minutes.</p><p>Best regards,<br>The Backend Ledger Team</p>`;
+ 
     await sendEmail(userEmail, subject, text, html);
-
-
+ 
+ 
 }
 
 async function sendTransactionEmail(userEmail, name, amount, toAccount){
@@ -77,6 +79,7 @@ async function sendTransactionFailureEmail(userEmail, name, amount, toAccount){
 
 
 module.exports = {
+    sendEmail,
     sendRegistrationEmail,
     sendTransactionEmail,
     sendTransactionFailureEmail
