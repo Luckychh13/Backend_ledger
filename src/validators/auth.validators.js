@@ -12,5 +12,20 @@ const loginSchema = z.object({
     password:z.string().min(6).max(30)
 })
 
+const forgetPasswordSchema = z.object({
+    email:z.string().email()
+})
 
-module.exports ={registerSchema, loginSchema}
+const resetPasswordSchema = z.object({
+    email:z.string().email(),
+    newPassword:z.string().min(6).max(30),
+    resetToken:z.string()
+})
+
+const verificationSchema = z.object({
+    email:z.string().email(),
+    verifiedCode:z.string()
+})
+
+
+module.exports ={registerSchema, loginSchema, forgetPasswordSchema, resetPasswordSchema, verificationSchema}
