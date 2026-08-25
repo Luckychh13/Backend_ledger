@@ -44,8 +44,6 @@ const userRegisterController = asyncHandler(async function (req,res){
 
     await emailService.sendRegistrationEmail(user.email, user.name, code)
 
-    const token = jwt.sign({userId:user._id},process.env.JWT_SECRET,{expiresIn:"3d"})
-
     res.cookie("token",token)
 
     return res
@@ -58,9 +56,8 @@ const userRegisterController = asyncHandler(async function (req,res){
                 email:user.email,
                 name:user.name
             },
-            token
         },
-        "User registered successfully"
+        "User registered successfully. Check your email for the verification code."
      ))
 })
 
@@ -148,7 +145,8 @@ const userForgetPasswordController = asyncHandler(async function (req,res) {
          .status(200)
          .json(new ApiResponse(
             200,
-            "Email verification code has been sent to your mail"
+                null,
+                "Email verification code has been sent to your mail"
         ))
     }
 
@@ -174,6 +172,7 @@ const userForgetPasswordController = asyncHandler(async function (req,res) {
      .status(200)
      .json(new ApiResponse(
         200,
+          null,
         "Email verification code has been sent to your mail"
      ))
     
@@ -207,9 +206,10 @@ const userPasswordResetController = asyncHandler(async function(req, res) {
     await user.save()
 
     return res
-     .status(201)
+     .status(200)
      .json(new ApiResponse(
-        201,
+        200,
+        null,
         "Password Rest Successfully"
     ))
 
